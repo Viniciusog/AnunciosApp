@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "203423382316",
+    "firebase_url": "https://anunciosapp-7b830.firebaseio.com",
+    "project_id": "anunciosapp-7b830",
+    "storage_bucket": "anunciosapp-7b830.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:203423382316:android:5c3535723eec5cfab80a89",
+        "android_client_info": {
+          "package_name": "com.viniciusog.anunciosapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "203423382316-siq4vb9e62cifod73urabkm7ir8e05qo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.viniciusog.anunciosapp",
+            "certificate_hash": "898f26f3174acce7b9f53ef455d4b391b778d887"
+          }
+        },
+        {
+          "client_id": "203423382316-74n01mkguqdoca9smruevcsklmllhd63.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtGx3wZJDgqk5ApKPm_tYtw1oaszmWNBo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "203423382316-74n01mkguqdoca9smruevcsklmllhd63.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

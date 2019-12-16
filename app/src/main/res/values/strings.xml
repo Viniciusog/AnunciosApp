@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">AnunciosApp</string>
+    <string name="title_activity_meus_anuncios">MeusAnunciosActivity</string>
+</resources>
