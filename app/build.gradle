@@ -40,6 +40,12 @@ dependencies {
 
     //Dependência de máscara telefone
     implementation 'com.github.santalu:mask-edittext:1.1.1'
+
+    //Dependência de dialog de carregamento
+    implementation 'com.github.d-max:spots-dialog:1.1@aar'
+
+    //Dependência picasso
+    implementation 'com.squareup.picasso:picasso:2.71828'
 }
 
 

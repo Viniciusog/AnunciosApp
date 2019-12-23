@@ -14,6 +14,11 @@ public class ConfiguracaoFirebase {
     private static StorageReference referenciaStorage;
     private static FirebaseAuth referenciaAutenticacao;
 
+    public static String getIdUsuario(){
+        FirebaseAuth autenticacao = getFirebaseAuth();
+        return autenticacao.getCurrentUser().getUid();
+    }
+
     public static DatabaseReference getFirebaseDatabase() {
         if ( referenciaFirebase == null) {
             referenciaFirebase = FirebaseDatabase.getInstance().getReference();
