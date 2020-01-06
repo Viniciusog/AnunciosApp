@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
@@ -25,6 +26,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.viniciusog.anunciosapp.R;
 import com.viniciusog.anunciosapp.adapter.AdapterAnuncios;
 import com.viniciusog.anunciosapp.helper.ConfiguracaoFirebase;
+import com.viniciusog.anunciosapp.helper.RecyclerItemClickListener;
 import com.viniciusog.anunciosapp.model.Anuncio;
 
 import java.util.ArrayList;
@@ -35,6 +37,7 @@ import dmax.dialog.SpotsDialog;
 
 public class MeusAnunciosActivity extends AppCompatActivity {
 
+    public static boolean podeNotificarAdapter;
     private RecyclerView recyclerAnuncios;
     private List<Anuncio> anuncios = new ArrayList<>();
     private AdapterAnuncios adapterAnuncios;
@@ -49,6 +52,7 @@ public class MeusAnunciosActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         //Configurações iniciais
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         anunciosUsuarioRef = ConfiguracaoFirebase.getFirebaseDatabase()
                 .child("meus_anuncios")
                 .child(ConfiguracaoFirebase.getIdUsuario());
@@ -65,6 +69,29 @@ public class MeusAnunciosActivity extends AppCompatActivity {
         });
 
         //Configurar recyclerView
+        recyclerAnuncios.addOnItemTouchListener(new RecyclerItemClickListener(
+                this,
+                recyclerAnuncios,
+                new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        Anuncio meuAnuncioSelecionado = anuncios.get(position);
+                        startActivity(new Intent(getApplicationContext(), DetalhesMeuAnuncioActivity.class)
+                                .putExtra("meuAnuncioSelecionado", meuAnuncioSelecionado));
+                    }
+
+                    @Override
+                    public void onLongItemClick(View view, int position) {
+
+                    }
+
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                    }
+                }
+        ));
+
         recyclerAnuncios.setLayoutManager(new LinearLayoutManager(this));
         recyclerAnuncios.setHasFixedSize(true);
         adapterAnuncios = new AdapterAnuncios(anuncios, this);
@@ -97,13 +124,13 @@ public class MeusAnunciosActivity extends AppCompatActivity {
                 if ( anuncios.size() > 0) {
                     //Inverte a lista para mostrar os anúncios mais novos primeiro
                     Collections.reverse(anuncios);
-                    adapterAnuncios.notifyDataSetChanged();
                     dialog.dismiss();
                 } else {
                     dialog.dismiss();
                     Toast.makeText(MeusAnunciosActivity.this, "Não existe anúncios a serem recuperados.",
                             Toast.LENGTH_LONG).show();
                 }
+                adapterAnuncios.notifyDataSetChanged();
             }
 
             @Override
@@ -118,6 +145,7 @@ public class MeusAnunciosActivity extends AppCompatActivity {
         recyclerAnuncios = findViewById(R.id.recyclerAnuncios);
     }
 
+    //Adiciona evento de 'deslizar' "Swipe" em recyclerView
     private void swipe() {
         ItemTouchHelper.Callback itemTouch = new ItemTouchHelper.Callback() {
             @Override
@@ -179,5 +207,20 @@ public class MeusAnunciosActivity extends AppCompatActivity {
 
         AlertDialog dialog = alert.create();
         dialog.show();
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return super.onSupportNavigateUp();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if ( podeNotificarAdapter ) {
+            adapterAnuncios.notifyDataSetChanged();
+            podeNotificarAdapter = false;
+        }
     }
 }

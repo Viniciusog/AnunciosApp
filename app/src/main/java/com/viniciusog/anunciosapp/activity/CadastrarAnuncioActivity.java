@@ -24,7 +24,6 @@ import android.widget.Toast;
 import com.blackcat.currencyedittext.CurrencyEditText;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.santalu.maskedittext.MaskEditText;
@@ -34,6 +33,7 @@ import com.viniciusog.anunciosapp.helper.Permissoes;
 import com.viniciusog.anunciosapp.model.Anuncio;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -52,7 +52,8 @@ public class CadastrarAnuncioActivity extends AppCompatActivity implements View.
             Manifest.permission.READ_EXTERNAL_STORAGE
     };
 
-    private List<String> listaFotosRecuperadas = new ArrayList<>(); //Caminho das fotos no dispositivo
+    private List<String> listaFotosRecuperadas = new ArrayList<>(Arrays.asList("", "", "")); //Caminho das fotos no dispositivo
+    private List<String> listaFotosOkRecuperadas = new ArrayList<>(); //Caminho das fotos no dispositivo
     private List<String> listaUrlFotos = new ArrayList<>(); //Caminho das fotos no firebase
     private Anuncio anuncio;
     private StorageReference storage;
@@ -98,14 +99,15 @@ public class CadastrarAnuncioActivity extends AppCompatActivity implements View.
 
     public void salvarAnuncio() {
         //Salvar imagem no storage
-        for (String urlImagem : listaFotosRecuperadas) {
-            int tamanhoLista = listaFotosRecuperadas.size();
+        for (String urlImagem : listaFotosOkRecuperadas) {
+            int tamanhoLista = listaFotosOkRecuperadas.size();
             //Primeira foto (index 0), segunda foto ( index1 ), terceira foto ( index2 )
-            int indexFotoASerSalva = listaFotosRecuperadas.indexOf(urlImagem);
+            int indexFotoASerSalva = listaFotosOkRecuperadas.indexOf(urlImagem);
             salvarFotoStorage(urlImagem, tamanhoLista, indexFotoASerSalva);
         }
     }
 
+    //ESTÁ COM UM ERRO QUE NÃO COMPROMETE O SISTEMA, POSIÇÃO DAS IMAGENS A SEREM EXIBIDAS
     private void salvarFotoStorage(String urlImagem, final int tamanhoLista, int indexFotoASerSalva) {
 
         //Criar nó no storage
@@ -124,7 +126,7 @@ public class CadastrarAnuncioActivity extends AppCompatActivity implements View.
                 listaUrlFotos.add(urlConvertida);
 
                 if (tamanhoLista == listaUrlFotos.size()) {
-                    anuncio.setFotos(listaUrlFotos);
+                    anuncio.setFotos(listaUrlFotos); //ERRO É AQUI
                     anuncio.salvar();
 
                     //Fecha a DIALOG pois o carregamento terminou
@@ -168,7 +170,7 @@ public class CadastrarAnuncioActivity extends AppCompatActivity implements View.
         if (editTelefone.getRawText() != null) {
             fone = editTelefone.getRawText().toString();
         }
-        if (listaFotosRecuperadas.size() < 2)
+        if (listaFotosOkRecuperadas.size() < 2)
             throw new Exception("Escolha no mínimo 2 fotos para seu anúncio.");
         if (anuncio.getEstado().isEmpty())
             throw new Exception("Selecione um estado.");
@@ -212,15 +214,15 @@ public class CadastrarAnuncioActivity extends AppCompatActivity implements View.
     public void onClick(View view) {
 
         switch (view.getId()) {
-            case R.id.imageCadastro1: {
+            case R.id.anuncioImage1: {
                 escolherImagem(1);
                 break;
             }
-            case R.id.imageCadastro2: {
+            case R.id.anuncioImage2: {
                 escolherImagem(2);
                 break;
             }
-            case R.id.imageCadastro3: {
+            case R.id.anuncioImage3: {
                 escolherImagem(3);
                 break;
             }
@@ -240,14 +242,26 @@ public class CadastrarAnuncioActivity extends AppCompatActivity implements View.
             Uri imagemSelecionada = data.getData();
             String caminhoFoto = imagemSelecionada.toString();
 
+            int posicao = 0;
+
             if (requestCode == 1) {
+                posicao = 1;
                 imagem1.setImageURI(imagemSelecionada);
             } else if (requestCode == 2) {
+                posicao = 2;
                 imagem2.setImageURI(imagemSelecionada);
             } else if (requestCode == 3) {
+                posicao = 3;
                 imagem3.setImageURI(imagemSelecionada);
             }
-            listaFotosRecuperadas.add(caminhoFoto);
+            listaFotosOkRecuperadas.add(caminhoFoto);
+            listaFotosRecuperadas.set(posicao - 1, caminhoFoto);
+            /*if (listaFotosRecuperadas.get(posicao - 1) != null && posicao != 0) {
+                listaFotosRecuperadas.set(posicao - 1, caminhoFoto);
+            } else {
+                listaFotosRecuperadas.add(caminhoFoto);
+            }*/
+            //listaFotosRecuperadas.add(caminhoFoto);
         }
     }
 
@@ -283,15 +297,15 @@ public class CadastrarAnuncioActivity extends AppCompatActivity implements View.
     }
 
     private void inicializarComponentes() {
-        editTitulo = findViewById(R.id.editTitulo);
-        editDescricao = findViewById(R.id.editDescricao);
-        editValor = findViewById(R.id.editValor);
-        editTelefone = findViewById(R.id.editTelefone);
-        spinnerCategoria = findViewById(R.id.spinnerCategoria);
-        spinnerEstado = findViewById(R.id.spinnerEstado);
-        imagem1 = findViewById(R.id.imageCadastro1);
-        imagem2 = findViewById(R.id.imageCadastro2);
-        imagem3 = findViewById(R.id.imageCadastro3);
+        editTitulo = findViewById(R.id.editTituloMeuAnuncio);
+        editDescricao = findViewById(R.id.editDescricaoMeuAnuncio);
+        editValor = findViewById(R.id.editValorMeuAnuncio);
+        editTelefone = findViewById(R.id.editTelefoneMeuAnuncio);
+        spinnerCategoria = findViewById(R.id.meuSpinnerCategoria);
+        spinnerEstado = findViewById(R.id.meuSpinnerEstado);
+        imagem1 = findViewById(R.id.anuncioImage1);
+        imagem2 = findViewById(R.id.anuncioImage2);
+        imagem3 = findViewById(R.id.anuncioImage3);
         imagem1.setOnClickListener(this); //A própria classe cuida de ouvir qual imagem foi clicada, no método onClick
         imagem2.setOnClickListener(this);
         imagem3.setOnClickListener(this);

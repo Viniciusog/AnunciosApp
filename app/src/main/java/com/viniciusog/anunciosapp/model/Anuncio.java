@@ -1,13 +1,25 @@
 package com.viniciusog.anunciosapp.model;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.storage.StorageReference;
 import com.viniciusog.anunciosapp.helper.ConfiguracaoFirebase;
 
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class Anuncio {
+public class Anuncio implements Serializable {
 
     private String idAnuncio;
     private String estado;
@@ -48,6 +60,62 @@ public class Anuncio {
         anunciosRef.setValue(this);
     }
 
+    public void atualizar() {
+        DatabaseReference firebaseRef = ConfiguracaoFirebase.getFirebaseDatabase();
+        DatabaseReference anuncioRef = firebaseRef.child("meus_anuncios").child(ConfiguracaoFirebase.getIdUsuario())
+                .child(getIdAnuncio());
+
+        //Apesar de no Firebase conter o nó idAnuncio dentro do anúncio, não é necessário,
+        // pois o mesmo já está dentro do nó que contém o id DoAnuncio
+        HashMap<String, Object> objeto = new HashMap();
+        objeto.put("categoria", getCategoria());
+        objeto.put("descricao", getDescricao());
+        objeto.put("estado", getEstado());
+        objeto.put("fotos", getFotos());
+        objeto.put("telefone", getTelefone());
+        objeto.put("titulo", getTitulo());
+        objeto.put("valor", getValor());
+
+        //atualizarAnuncioPublico();
+        atualizarImagensStorage();
+
+        //firebaseRef.updateChildren(objeto);
+        anuncioRef.updateChildren(objeto);
+    }
+
+    private void atualizarAnuncioPublico() {
+        DatabaseReference firebaseRef = ConfiguracaoFirebase.getFirebaseDatabase();
+        DatabaseReference anuncioPublicoRef = firebaseRef.child("anuncios")
+                .child(getEstado())
+                .child(getCategoria())
+                .child(getIdAnuncio());
+
+        HashMap<String, Object> objeto = new HashMap();
+        objeto.put("categoria", getCategoria());
+        objeto.put("descricao", getDescricao());
+        objeto.put("estado", getEstado());
+        objeto.put("fotos", getFotos());
+        objeto.put("telefone", getTelefone());
+        objeto.put("titulo", getTitulo());
+        objeto.put("valor", getValor());
+        objeto.put("idAnuncio", getIdAnuncio());
+
+        anuncioPublicoRef.updateChildren(objeto);
+    }
+
+    private void atualizarImagensStorage() {
+
+        StorageReference imagemsAnuncio = ConfiguracaoFirebase.getFirebaseStorage().child("imagens")
+                .child("anuncios")
+                .child(getIdAnuncio());
+
+        for ( String urlImagem : getFotos()) {
+            int posicao = getFotos().indexOf(urlImagem);
+            StorageReference imagem = imagemsAnuncio.child("imagem" + posicao);
+            imagem.putFile(Uri.parse(urlImagem));
+        }
+    }
+
     public void remover() {
         DatabaseReference anunciosRef = ConfiguracaoFirebase.getFirebaseDatabase()
                 .child("meus_anuncios")
@@ -61,7 +129,6 @@ public class Anuncio {
     public void removerAnuncioPublico() {
         DatabaseReference anunciosRef = ConfiguracaoFirebase.getFirebaseDatabase()
                 .child("anuncios")
-                .child(ConfiguracaoFirebase.getIdUsuario())
                 .child(getEstado())
                 .child(getCategoria())
                 .child(getIdAnuncio());

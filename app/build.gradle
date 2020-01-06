@@ -5,7 +5,7 @@ android {
     buildToolsVersion "29.0.1"
     defaultConfig {
         applicationId "com.viniciusog.anunciosapp"
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -46,6 +46,9 @@ dependencies {
 
     //Dependência picasso
     implementation 'com.squareup.picasso:picasso:2.71828'
+
+    //Dependência para Carousel View - Slide de imagens
+    implementation 'com.synnapps:carouselview:0.1.5'
 }
 
 

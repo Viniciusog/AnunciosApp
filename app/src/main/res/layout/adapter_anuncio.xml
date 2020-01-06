@@ -18,7 +18,7 @@
             android:id="@+id/imageAnuncio"
             android:layout_width="150dp"
             android:layout_height="140dp"
-            android:scaleType="centerInside"
+            android:scaleType="centerCrop"
             app:srcCompat="@drawable/padrao" />
 
         <LinearLayout
@@ -29,7 +29,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/textTitulo"
+                android:id="@+id/textTituloDetalhe"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Titulo"

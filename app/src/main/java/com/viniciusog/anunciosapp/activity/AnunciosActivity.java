@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.provider.ContactsContract;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,6 +41,7 @@ import dmax.dialog.SpotsDialog;
 public class AnunciosActivity extends AppCompatActivity {
 
     private FirebaseAuth autenticacao;
+    public static boolean podeNotificarAdapter;
 
     private Button buttonCategoria, buttonRegiao;
     private RecyclerView recyclerAnunciosPublicos;
@@ -72,8 +74,9 @@ public class AnunciosActivity extends AppCompatActivity {
 
         //Recupera Anuncios Publicos
         recuperarAnunciosPublicos();
+        anuncios.clear();
 
-        //Adicionar evento de clique
+        //Adicionar evento de clique no recycler de anuncios
         recyclerAnunciosPublicos.addOnItemTouchListener(new RecyclerItemClickListener(
                 this,
                 recyclerAnunciosPublicos,
@@ -81,6 +84,11 @@ public class AnunciosActivity extends AppCompatActivity {
                     @Override
                     public void onItemClick(View view, int position) {
                         Anuncio anuncioSelecionado = anuncios.get(position);
+
+                        //Cria uma intent e manda o anuncio selecionado para a activity DetalhesProdutosActivity
+                        Intent i = new Intent(AnunciosActivity.this, DetalhesProdutosActivity.class);
+                        i.putExtra("anuncioSelecionado", anuncioSelecionado);
+                        startActivity(i);
                     }
 
                     @Override
@@ -110,11 +118,11 @@ public class AnunciosActivity extends AppCompatActivity {
         anunciosPublicosRef = ConfiguracaoFirebase.getFirebaseDatabase()
                 .child("anuncios")
         ;
-        anuncios.clear();
 
         anunciosPublicosRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                anuncios.clear();
                 for (DataSnapshot estados : dataSnapshot.getChildren()) {
                     for (DataSnapshot categorias : estados.getChildren()) {
                         for (DataSnapshot dsAnuncios : categorias.getChildren()) {
@@ -328,16 +336,19 @@ public class AnunciosActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 anuncios.clear();
+                Log.i("dados mudaram", String.valueOf(anuncios.size()));
 
                 for (DataSnapshot anuncio : dataSnapshot.getChildren()) {
                     anuncios.add(anuncio.getValue(Anuncio.class));
                 }
 
                 if (anuncios.size() > 0) {
+                    Log.i("tamanho anuncios: " ,String.valueOf(anuncios.size()) );
                     Collections.reverse(anuncios);
                     adapterAnuncios.notifyDataSetChanged();
                     dialog.dismiss();
                 } else {
+                    Log.i("tamanho anuncios: " ,String.valueOf(anuncios.size()) );
                     dialog.dismiss();
                     adapterAnuncios.notifyDataSetChanged();
                     Toast.makeText(AnunciosActivity.this, "Não existe anúncios para esta categoria.",
@@ -358,5 +369,14 @@ public class AnunciosActivity extends AppCompatActivity {
         recyclerAnunciosPublicos = findViewById(R.id.recyclerAnunciosPublicos);
         buttonRegiao = findViewById(R.id.buttonRegiao);
         buttonCategoria = findViewById(R.id.buttonCategoria);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if ( podeNotificarAdapter ) {
+            adapterAnuncios.notifyDataSetChanged();
+            podeNotificarAdapter = false;
+        }
     }
 }
